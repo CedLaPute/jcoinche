@@ -1,20 +1,19 @@
-/**
- * Created by héhéhéhéhéhéhéhé on 17/11/2016.
- */
-
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
-public class Server extends ChannelInboundHandlerAdapter {
+/**
+ * Created by héhéhéhéhéhéhéhé on 17/11/2016.
+ */
+public class Client extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext context, Object message) {
         ByteBuf in = (ByteBuf)message;
-        try
-        {
-            // Lancer le parsing (module custom)
+
+        try {
+            // Lancer le parsing (classe custom)
             // Répondre avec la réponse appropriée
 
             while (in.isReadable()) {
@@ -30,5 +29,4 @@ public class Server extends ChannelInboundHandlerAdapter {
         cause.printStackTrace();
         context.close();
     }
-
 }
