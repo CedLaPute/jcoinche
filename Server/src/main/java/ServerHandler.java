@@ -32,6 +32,7 @@ public class ServerHandler {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
+                            // Acceptation de client
                             ch.pipeline().addLast(new Server());
                         }
                     })
