@@ -41,6 +41,8 @@ public class ServerHandler {
             // Bind et debut d'acceptation de clients
             ChannelFuture f = b.bind(port).sync();
 
+            System.out.print("Server initialization ok");
+
             // Attendre jusqua la fermerture du serveur
             f.channel().closeFuture().sync();
         } finally {

@@ -11,6 +11,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="netty" level="project" />
+    <orderEntry type="library" name="netty" level="project" />
   </component>
 </module>
