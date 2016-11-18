@@ -15,9 +15,15 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 public class ServerHandler {
 
     private int port;
+    private Distributor deck;
 
     public ServerHandler(int port) {
         this.port = port;
+        deck = new Distributor();
+        deck.generateAllCards();
+
+        Card c = deck.getRandomCard();
+        System.out.print(c.getNumber() + " " + c.getValue() + " " + c.getColor());
     }
 
     public void run() throws Exception {
