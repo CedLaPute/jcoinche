@@ -1,3 +1,5 @@
+import io.netty.channel.socket.SocketChannel;
+
 import java.util.ArrayList;
 
 /**
@@ -28,10 +30,6 @@ public class Distributor {
         }
     }
 
-    public int getCardsSize() {
-        return (cards.size());
-    }
-
     public Card getRandomCard() {
         int nb = (int)(Math.random() * 33);
         Card c;
@@ -39,5 +37,18 @@ public class Distributor {
         c = cards.get(nb);
         cards.remove(nb);
         return c;
+    }
+
+    public void Distribute(ArrayList<SocketChannel> _clients) {
+
+        for (int i = 0; i < 4; i++) {
+
+            for (int numberOfCardPerClient = 0; numberOfCardPerClient != 8; numberOfCardPerClient++) {
+
+                Card todistribute = getRandomCard();
+            }
+        }
+
+        System.out.print(cards.size());
     }
 }

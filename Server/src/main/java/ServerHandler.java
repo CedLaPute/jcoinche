@@ -12,18 +12,18 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
+import java.util.ArrayList;
+
 public class ServerHandler {
 
     private int port;
+    public ArrayList<SocketChannel> _clients = new ArrayList<SocketChannel>();
     private Distributor deck;
 
     public ServerHandler(int port) {
         this.port = port;
         deck = new Distributor();
         deck.generateAllCards();
-
-        Card c = deck.getRandomCard();
-        System.out.print(c.getNumber() + " " + c.getValue() + " " + c.getColor());
     }
 
     public void run() throws Exception {
@@ -40,6 +40,10 @@ public class ServerHandler {
                         public void initChannel(SocketChannel ch) throws Exception {
                             // Acceptation de client
                             ch.pipeline().addLast(new Server());
+                            _clients.add(ch);
+                            if (_clients.size() == 4) {
+                                deck.Distribute(_clients);
+                            }
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 128)
