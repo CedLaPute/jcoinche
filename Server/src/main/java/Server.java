@@ -16,13 +16,17 @@ public class Server extends ChannelInboundHandlerAdapter {
         try {
             // Lancer le parsing (module custom)
             // Répondre avec la réponse appropriée
-            System.out.print("in channelRead");
             while (in.isReadable()) {
                 System.out.print((char)in.readByte());
             }
         } finally {
             ReferenceCountUtil.release(message);
         }
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext context) throws Exception {
+        System.out.print("Client has disconnected\n");
     }
 
     @Override
