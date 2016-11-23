@@ -75,11 +75,9 @@ public class Client extends ChannelInboundHandlerAdapter {
         context.close();
     }
 
-    public void playCard(ChannelHandlerContext context) throws Exception
-    {
-        for (int i = 0; i < this._cards.size() ; i++)
-        {
-            System.out.print("La carte n°"+(i + 1)+" est un");
+    public void playCard(ChannelHandlerContext context) throws Exception {
+        for (int i = 0; i < this._cards.size(); i++) {
+            System.out.print("La carte n°" + (i + 1) + " est un");
             switch (this._cards.get(i).getNumber()) {
                 case 7:
                     System.out.print(" 7 de");
@@ -126,7 +124,7 @@ public class Client extends ChannelInboundHandlerAdapter {
             }
         }
         startReadingThread();
-        System.out.print("Quelle carte choisissez-vous ?\nIl vous suffit de rentrer un nombre entre 0 et "+this._cards.size()+".\n");
+        System.out.print("Quelle carte choisissez-vous ?\nIl vous suffit de rentrer un nombre entre 0 et " + this._cards.size() + ".\n");
         //usage de comment donné la carte
         try {
             String str;
@@ -135,14 +133,17 @@ public class Client extends ChannelInboundHandlerAdapter {
                 if (!this._future.isDone()) {
                     str = this._future.get();
                     if (!StringUtils.isAlphanumeric(str)) {
-                        System.out.print("Vous avez jouer la " + str + "° carte.\n");
+                        int k;
+                        k = Integer.parseInt(str);
+                        if (!(k < 0 && k > this._cards.size())) {
+                            System.out.print("Vous avez jouer la " + str + "° carte.\n");
+                        }
+                        this._executor.shutdown();
+                        break;
                     }
-                    this._executor.shutdown();
-                    break;
                 }
             }
-        } finally {}
-/*         */
+        } finally{}
     }
 
     public void analyseCommand(ChannelHandlerContext context, String s) throws Exception {
