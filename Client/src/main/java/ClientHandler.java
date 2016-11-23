@@ -36,7 +36,7 @@ public class ClientHandler {
             // Demarrage du client
             ChannelFuture f = b.connect(host, port).sync();
 
-            System.out.print("Client initialization ok");
+            System.out.print("Client initialization ok\n");
 
             // Attendre jusqua la fermeture de la connexion
             f.channel().closeFuture().sync();

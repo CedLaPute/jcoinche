@@ -1,5 +1,5 @@
 import io.netty.channel.socket.SocketChannel;
-
+import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 
 /**
@@ -18,6 +18,11 @@ public class Distributor {
 
     public void generateAllCards() {
 
+        // COLOR 0 = PIQUE
+        // COLOR 1 = TREFLE
+        // COLOR 2 = CARREAU
+        // COLOR 3 = COEUR
+
         for (int color = 0; color != 4; color++) {
             cards.add(new Card(7, 0, color)); // SEPT
             cards.add(new Card(8, 0, color)); // HUIT
@@ -31,7 +36,7 @@ public class Distributor {
     }
 
     public Card getRandomCard() {
-        int nb = (int)(Math.random() * 33);
+        int nb = (int)(Math.random() * cards.size());
         Card c;
 
         c = cards.get(nb);
@@ -41,14 +46,17 @@ public class Distributor {
 
     public void Distribute(ArrayList<SocketChannel> _clients) {
 
-        for (int i = 0; i < 4; i++) {
+        int numberOfCardsDistributed = 0;
 
-            for (int numberOfCardPerClient = 0; numberOfCardPerClient != 8; numberOfCardPerClient++) {
+        while (numberOfCardsDistributed < 32) {
 
+            for (int i = 0; i < 4; i++) {
                 Card todistribute = getRandomCard();
+                ByteBuf b = new Serializer().sendCard(todistribute);
+
+                _clients.get(i).writeAndFlush(b);
+                numberOfCardsDistributed++;
             }
         }
-
-        System.out.print(cards.size());
     }
 }
