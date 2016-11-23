@@ -14,8 +14,18 @@ public class Serializer { // ENCODAGE ET DECODAGE DES STRING
         b.getBytes(0, bites);
 
         String s = new String(bites);
-        System.out.print(s);
+        System.out.print("Readed from serializer : " + s + "\n");
         return s;
+    }
+
+    public ByteBuf sendOk() {
+        ByteBuf b;
+        byte[] bites;
+        String s = "OK\r\n";
+
+        bites = s.getBytes();
+        b = Unpooled.wrappedBuffer(bites);
+        return b;
     }
 
     public ByteBuf sendCard(Card _card) {

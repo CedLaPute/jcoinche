@@ -20,7 +20,27 @@ public class Serializer { // ENCODAGE ET DECODAGE DES STRING
     public ByteBuf sendOk() {
         ByteBuf b;
         byte[] bites;
-        String s = "OK\n";
+        String s = "OK\r\n";
+
+        bites = s.getBytes();
+        b = Unpooled.wrappedBuffer(bites);
+        return b;
+    }
+
+    public ByteBuf sendLogin(String login) {
+        ByteBuf b;
+        byte[] bites;
+        String s = "LOGIN " + login + "\r\n";
+
+        bites = s.getBytes();
+        b = Unpooled.wrappedBuffer(bites);
+        return b;
+    }
+
+    public ByteBuf sendReady() {
+        ByteBuf b;
+        byte[] bites;
+        String s = "READY\r\n";
 
         bites = s.getBytes();
         b = Unpooled.wrappedBuffer(bites);

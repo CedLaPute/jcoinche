@@ -6,6 +6,9 @@ import io.netty.util.ReferenceCountUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 /**
  * Created by héhéhéhéhéhéhéhé on 17/11/2016.
@@ -13,10 +16,19 @@ import java.util.List;
 public class Client extends ChannelInboundHandlerAdapter {
 
     private ArrayList<Card> _cards = new ArrayList<Card>();
+    private FutureTask<String> _future;
+    private ExecutorService _executor;
+
+    public void startReadingThread() throws Exception {
+        CallableReader readin = new CallableReader();
+        this._future = new FutureTask<String>(readin);
+        this._executor = Executors.newFixedThreadPool(1);
+        this._executor.execute(this._future);
+    }
 
     @Override
-    public void channelRead(ChannelHandlerContext context, Object message) {
-        ByteBuf in = (ByteBuf)message;
+    public void channelRead(ChannelHandlerContext context, Object message) throws Exception {
+        ByteBuf in = (ByteBuf) message;
 
         try {
             // Lancer le parsing (classe custom)
@@ -32,6 +44,20 @@ public class Client extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext context) throws Exception {
         context.writeAndFlush(new Serializer().sendOk());
+        startReadingThread();
+        System.out.print("Veuillez entrer votre login :\n");
+        try {
+            String str;
+
+            while (true) {
+                if (!this._future.isDone()) {
+                    str = this._future.get();
+                    context.writeAndFlush(new Serializer().sendLogin(str));
+                    this._executor.shutdown();
+                    break;
+                }
+            }
+        } finally {}
     }
 
     @Override
@@ -45,14 +71,14 @@ public class Client extends ChannelInboundHandlerAdapter {
         context.close();
     }
 
-    public void analyseCommand(ChannelHandlerContext context, String s) {
+    public void analyseCommand(ChannelHandlerContext context, String s) throws Exception {
         List<String> items = new ArrayList<String>(Arrays.asList(s.split("\r\n")));
 
         for (int i = 0; i < items.size() - 1; i++) {
 
             List<String> data = new ArrayList<String>(Arrays.asList(items.get(i).split(" ")));
 
-            if (data.get(0).compareTo("OK\r\n") == 0) {
+            if (data.get(0).compareTo("OK") == 0) {
                 System.out.print("Ok\n");
             }
             if (data.get(0).compareTo("CARD") == 0) {
@@ -77,6 +103,20 @@ public class Client extends ChannelInboundHandlerAdapter {
                 }
                 System.out.print(", valeur de " + _cards.get(i).getValue() + "\n");
             }
+            System.out.print("Tapez READY si vous êtes prêts à jouer\n");
+            try {
+                String str;
+
+                if (!this._future.isDone()) {
+                    str = this._future.get();
+                    System.out.print("Readed : " + str + "\n");
+                    if (str.compareTo("READY") == 0) {
+                        context.writeAndFlush(new Serializer().sendReady());
+                    }
+                    this._executor.shutdown();
+                    startReadingThread();
+                }
+            } finally {}
         }
     }
 }

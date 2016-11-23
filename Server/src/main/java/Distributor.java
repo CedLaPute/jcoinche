@@ -27,7 +27,7 @@ public class Distributor {
             cards.add(new Card(7, 0, color)); // SEPT
             cards.add(new Card(8, 0, color)); // HUIT
             cards.add(new Card(9, 9, color)); // NEUF
-            cards.add(new Card(10, 5, color)); // DIX
+            cards.add(new Card(10,   5, color)); // DIX
             cards.add(new Card(11, 14, color)); // VALET
             cards.add(new Card(12, 2, color)); // DAME
             cards.add(new Card(13, 3, color)); // ROI
@@ -44,7 +44,7 @@ public class Distributor {
         return c;
     }
 
-    public void Distribute(ArrayList<SocketChannel> _clients) {
+    public void Distribute(ArrayList<Player> _players) {
 
         int numberOfCardsDistributed = 0;
 
@@ -54,7 +54,7 @@ public class Distributor {
                 Card todistribute = getRandomCard();
                 ByteBuf b = new Serializer().sendCard(todistribute);
 
-                _clients.get(i).writeAndFlush(b);
+                _players.get(i)._channel.writeAndFlush(b);
                 numberOfCardsDistributed++;
             }
         }
