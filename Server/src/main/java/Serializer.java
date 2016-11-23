@@ -1,6 +1,8 @@
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
+import java.util.ArrayList;
+
 /**
  * Created by héhéhéhéhéhéhéhé on 21/11/2016.
  */
@@ -21,6 +23,23 @@ public class Serializer { // ENCODAGE ET DECODAGE DES STRING
         ByteBuf b;
         byte[] bites;
         String s = "OK\r\n";
+
+        bites = s.getBytes();
+        b = Unpooled.wrappedBuffer(bites);
+        return b;
+    }
+
+    public ByteBuf sendDeck(ArrayList<Card> cards, String login) {
+        ByteBuf b;
+        byte[] bites;
+        String s = "DECK " + login + " ";
+
+        for (int i = 0; i < cards.size(); i++) {
+            s += cards.get(i).getNumber() + " " + cards.get(i).getValue() + " " + cards.get(i).getColor() + " ";
+        }
+        s += "\r\n";
+
+        System.out.print("Deck : " + s);
 
         bites = s.getBytes();
         b = Unpooled.wrappedBuffer(bites);

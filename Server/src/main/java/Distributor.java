@@ -52,11 +52,14 @@ public class Distributor {
 
             for (int i = 0; i < 4; i++) {
                 Card todistribute = getRandomCard();
-                ByteBuf b = new Serializer().sendCard(todistribute);
 
-                _players.get(i)._channel.writeAndFlush(b);
+                _players.get(i).addCard(todistribute);
                 numberOfCardsDistributed++;
             }
+        }
+
+        for (int playerIndex = 0; playerIndex < 4; playerIndex++) {
+            _players.get(playerIndex)._channel.writeAndFlush(new Serializer().sendDeck(_players.get(playerIndex)._cards, _players.get(playerIndex)._login));
         }
     }
 }

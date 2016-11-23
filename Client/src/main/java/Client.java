@@ -153,11 +153,15 @@ public class Client extends ChannelInboundHandlerAdapter {
 
             List<String> data = new ArrayList<String>(Arrays.asList(items.get(i).split(" ")));
 
+
+
             if (data.get(0).compareTo("OK") == 0) {
                 System.out.print("Ok\n");
             }
-            if (data.get(0).compareTo("CARD") == 0) {
-                _cards.add(new Card(Integer.parseInt(data.get(1)), Integer.parseInt(data.get(2)), Integer.parseInt(data.get(3))));
+            if (data.get(0).compareTo("DECK") == 0) {
+                for (int dataIndex = 2; dataIndex < data.size(); dataIndex = dataIndex + 3) {
+                    _cards.add(new Card(Integer.parseInt(data.get(dataIndex)), Integer.parseInt(data.get(dataIndex + 1)), Integer.parseInt(data.get(dataIndex + 2))));
+                }
             }
             if (data.get(0).compareTo("PLAY") == 0)
             {
@@ -184,10 +188,10 @@ public class Client extends ChannelInboundHandlerAdapter {
             }
             System.out.print("Tapez READY si vous êtes prêts à jouer\n");
             try {
-                startReadingThread();
-                String str;
-
                 while (true) {
+
+                    startReadingThread();
+                    String str;
 
                     if (!this._future.isDone()) {
                         str = this._future.get();
@@ -196,6 +200,10 @@ public class Client extends ChannelInboundHandlerAdapter {
                             context.writeAndFlush(new Serializer().sendReady(this._login));
                             this._executor.shutdown();
                             break;
+                        }
+                        else {
+                            System.out.print("Tapez READY si vous êtes prêts à jouer\n");
+                            this._executor.shutdown();
                         }
                     }
                 }

@@ -14,6 +14,7 @@ public class Serializer { // ENCODAGE ET DECODAGE DES STRING
         b.getBytes(0, bites);
 
         String s = new String(bites);
+        b.clear();
         return s;
     }
 
