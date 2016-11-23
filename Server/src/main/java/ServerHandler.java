@@ -28,8 +28,28 @@ public class ServerHandler {
         deck.generateAllCards();
     }
 
+    public int getPlayerIndexByName(String login) {
+        int i = 0;
+
+        while (i < _players.size()) {
+            if (_players.get(i)._login.compareTo(login) == 0) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public boolean allPlayersAreReady() {
+        for (int i = 0; i < _players.size(); i++) {
+            if (_players.get(i)._ready == false)
+                return false;
+        }
+        return true;
+    }
+
     public void commandHandler(ChannelHandlerContext ctx, String s) throws Exception {
         List<String> items = new ArrayList<String>(Arrays.asList(s.split("\r\n")));
+        int playerIndex;
 
         for (int i = 0; i < items.size() - 1; i++) {
 
@@ -45,11 +65,25 @@ public class ServerHandler {
                     _players.get(_players.size() - 1)._channel.writeAndFlush(new Serializer().sendOk());
                 }
             }
+            if (data.get(0).compareTo("READY") == 0) {
+                System.out.print("Login received : " + data.get(1) + "\n");
+                if (data.get(1).compareTo("\r\n") != 0) {
+                    if ((playerIndex = getPlayerIndexByName(data.get(1))) != -1) {
+                        this._players.get(playerIndex)._ready = true;
+                    }
+                }
+            }
         }
 
         if (_players.size() == 4 && distributed == false) {
             deck.Distribute(_players);
             distributed = true;
+        }
+
+        if (allPlayersAreReady()) {
+            for (playerIndex = 0; playerIndex < _players.size(); playerIndex++) {
+                this._players.get(playerIndex)._channel.writeAndFlush(new Serializer().sendBet());
+            }
         }
     }
 

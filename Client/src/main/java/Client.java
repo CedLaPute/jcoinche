@@ -10,6 +10,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Created by héhéhéhéhéhéhéhé on 17/11/2016.
  */
@@ -18,6 +20,7 @@ public class Client extends ChannelInboundHandlerAdapter {
     private ArrayList<Card> _cards = new ArrayList<Card>();
     private FutureTask<String> _future;
     private ExecutorService _executor;
+    private String _login;
 
     public void startReadingThread() throws Exception {
         CallableReader readin = new CallableReader();
@@ -53,6 +56,7 @@ public class Client extends ChannelInboundHandlerAdapter {
                 if (!this._future.isDone()) {
                     str = this._future.get();
                     context.writeAndFlush(new Serializer().sendLogin(str));
+                    this._login = str;
                     this._executor.shutdown();
                     break;
                 }
@@ -71,7 +75,7 @@ public class Client extends ChannelInboundHandlerAdapter {
         context.close();
     }
 
-    public void playCard(ChannelHandlerContext context)
+    public void playCard(ChannelHandlerContext context) throws Exception
     {
         for (int i = 0; i < this._cards.size() ; i++)
         {
@@ -188,7 +192,7 @@ public class Client extends ChannelInboundHandlerAdapter {
                         str = this._future.get();
                         System.out.print("Readed : " + str + "\n");
                         if (str.compareTo("READY") == 0) {
-                            context.writeAndFlush(new Serializer().sendReady());
+                            context.writeAndFlush(new Serializer().sendReady(this._login));
                             this._executor.shutdown();
                             break;
                         }

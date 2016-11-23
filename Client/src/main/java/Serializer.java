@@ -37,10 +37,20 @@ public class Serializer { // ENCODAGE ET DECODAGE DES STRING
         return b;
     }
 
-    public ByteBuf sendReady() {
+    public ByteBuf sendReady(String login) {
         ByteBuf b;
         byte[] bites;
-        String s = "READY\r\n";
+        String s = "READY " + login + "\r\n";
+
+        bites = s.getBytes();
+        b = Unpooled.wrappedBuffer(bites);
+        return b;
+    }
+
+    public ByteBuf sendPlayerCard(String login, Card c) {
+        ByteBuf b;
+        byte[] bites;
+        String s = "PLAYCARD " + login + " " + c.getNumber() + " " + c.getValue() + " " + c.getColor() + "\r\n";
 
         bites = s.getBytes();
         b = Unpooled.wrappedBuffer(bites);

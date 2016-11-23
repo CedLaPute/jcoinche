@@ -6,9 +6,12 @@ import io.netty.channel.ChannelHandlerContext;
 public class Player {
 
     public ChannelHandlerContext _channel;
-    private String _login;
-    private int _team;
-    private int _points;
+    public boolean _ready = false;
+    public boolean _play = false;
+    public String _login;
+    public int _team;
+    public int _points;
+    public int _bet;
 
     public Player(ChannelHandlerContext channel, String login) {
         this._channel = channel;

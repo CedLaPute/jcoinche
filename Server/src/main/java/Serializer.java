@@ -37,4 +37,14 @@ public class Serializer { // ENCODAGE ET DECODAGE DES STRING
         b = Unpooled.wrappedBuffer(bites);
         return b;
     }
+
+    public ByteBuf sendBet() {
+        ByteBuf b;
+        byte[] bites;
+        String s = "";
+
+        bites = s.getBytes();
+        b = Unpooled.wrappedBuffer(bites);
+        return b;
+    }
 }
