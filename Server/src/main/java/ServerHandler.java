@@ -66,7 +66,7 @@ public class ServerHandler {
                 }
             }
             if (data.get(0).compareTo("READY") == 0) {
-                System.out.print("Login received : " + data.get(1) + "\n");
+                System.out.print("Ready received, login : " + data.get(1) + "\n");
                 if (data.get(1).compareTo("\r\n") != 0) {
                     if ((playerIndex = getPlayerIndexByName(data.get(1))) != -1) {
                         this._players.get(playerIndex)._ready = true;

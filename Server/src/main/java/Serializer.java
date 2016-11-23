@@ -14,7 +14,6 @@ public class Serializer { // ENCODAGE ET DECODAGE DES STRING
         b.getBytes(0, bites);
 
         String s = new String(bites);
-        System.out.print("Readed from serializer : " + s + "\n");
         return s;
     }
 
@@ -41,7 +40,7 @@ public class Serializer { // ENCODAGE ET DECODAGE DES STRING
     public ByteBuf sendBet() {
         ByteBuf b;
         byte[] bites;
-        String s = "";
+        String s = "BET\r\n";
 
         bites = s.getBytes();
         b = Unpooled.wrappedBuffer(bites);
