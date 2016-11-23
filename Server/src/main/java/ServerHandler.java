@@ -28,7 +28,7 @@ public class ServerHandler {
         deck.generateAllCards();
     }
 
-    public void commandHandler(ChannelHandlerContext ctx, String s) {
+    public void commandHandler(ChannelHandlerContext ctx, String s) throws Exception {
         List<String> items = new ArrayList<String>(Arrays.asList(s.split("\r\n")));
 
         for (int i = 0; i < items.size() - 1; i++) {
@@ -42,7 +42,7 @@ public class ServerHandler {
                 System.out.print("Login received : " + data.get(1) + "\n");
                 if (data.get(1).compareTo("\r\n") != 0) {
                     _players.add(new Player(ctx, data.get(1)));
-                    _players.get(_players.size())._channel.writeAndFlush(new Serializer().sendOk());
+                    _players.get(_players.size() - 1)._channel.writeAndFlush(new Serializer().sendOk());
                 }
             }
         }
@@ -116,4 +116,5 @@ public class ServerHandler {
         }
         new ServerHandler(port).run();
     }
+
 }
