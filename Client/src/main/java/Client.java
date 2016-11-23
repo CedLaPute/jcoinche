@@ -75,6 +75,31 @@ public class Client extends ChannelInboundHandlerAdapter {
         context.close();
     }
 
+    public void ready(ChannelHandlerContext context) throws Exception {
+        System.out.print("Tapez READY si vous êtes prêts à jouer\n");
+        try {
+            while (true) {
+
+                startReadingThread();
+                String str;
+
+                if (!this._future.isDone()) {
+                    str = this._future.get();
+                    System.out.print("Readed : " + str + "\n");
+                    if (str.compareTo("READY") == 0) {
+                        context.writeAndFlush(new Serializer().sendReady(this._login));
+                        this._executor.shutdown();
+                        break;
+                    }
+                    else {
+                        System.out.print("Tapez READY si vous êtes prêts à jouer\n");
+                        this._executor.shutdown();
+                    }
+                }
+            }
+        } finally {}
+    }
+
     public void bet(ChannelHandlerContext context) throws Exception {
         startReadingThread();
         System.out.print("Quelle pari choisissez-vous ?\n" + "Il vous suffit de rentrer un nombre entier > 0\n");
@@ -151,9 +176,10 @@ public class Client extends ChannelInboundHandlerAdapter {
                 default:
                     System.out.print(" --unknow--");
             }
+            System.out.print("\n");
         }
         startReadingThread();
-        System.out.print("Quelle carte choisissez-vous ?\nIl vous suffit de rentrer un nombre entre 0 et " + this._cards.size() + ".\n");
+        System.out.print("Quelle carte choisissez-vous ?\nIl vous suffit de rentrer un nombre entre 1 et " + this._cards.size() + ".\n");
         //usage de comment donné la carte
         try {
             String str;
@@ -161,7 +187,7 @@ public class Client extends ChannelInboundHandlerAdapter {
             while (true) {
                 if (!this._future.isDone()) {
                     str = this._future.get();
-                    if (!StringUtils.isAlphanumeric(str)) {
+                    if (StringUtils.isAlphanumeric(str)) {
                         int k;
                         k = Integer.parseInt(str);
                         if (!(k < 0 && k > this._cards.size())) {
@@ -193,44 +219,8 @@ public class Client extends ChannelInboundHandlerAdapter {
                 /* AFFICHAGE DES CARTES A DEPLACER */
 
                 if (_cards.size() == 8) {
-                    System.out.print("Vos cartes sont :\n");
-                    for (int c = 0; c < 8; c++) {
-                        System.out.print(_cards.get(i).getNumber() + " de ");
-                        if (_cards.get(c).getColor() == 0) {
-                            System.out.print("pique");
-                        } else if (_cards.get(c).getColor() == 1) {
-                            System.out.print("trefle");
-                        } else if (_cards.get(c).getColor() == 2) {
-                            System.out.print("carreau");
-                        } else if (_cards.get(c).getColor() == 3) {
-                            System.out.print("coeur");
-                        }
-                        System.out.print(", valeur de " + _cards.get(c).getValue() + "\n");
-                    }
-                    System.out.print("Tapez READY si vous êtes prêts à jouer\n");
-                    try {
-                        while (true) {
-
-                            startReadingThread();
-                            String str;
-
-                            if (!this._future.isDone()) {
-                                str = this._future.get();
-                                System.out.print("Readed : " + str + "\n");
-                                if (str.compareTo("READY") == 0) {
-                                    context.writeAndFlush(new Serializer().sendReady(this._login));
-                                    this._executor.shutdown();
-                                    break;
-                                }
-                                else {
-                                    System.out.print("Tapez READY si vous êtes prêts à jouer\n");
-                                    this._executor.shutdown();
-                                }
-                            }
-                        }
-                    } finally {}
+                    ready(context);
                 }
-
             }
             if (data.get(0).compareTo("BET") == 0) {
                 bet(context);
