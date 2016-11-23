@@ -75,6 +75,35 @@ public class Client extends ChannelInboundHandlerAdapter {
         context.close();
     }
 
+    public void bet(ChannelHandlerContext context) throws Exception {
+        startReadingThread();
+        System.out.print("Quelle pari choisissez-vous ?\n" + "Il vous suffit de rentrer un nombre entier > 0\n");
+
+        try {
+            String str;
+
+            while (true) {
+                if (!this._future.isDone()) {
+                    str = this._future.get();
+                    if (StringUtils.isAlphanumeric(str)) {
+                        int k;
+                        k = Integer.parseInt(str);
+                        if (k > 0) {
+                            context.writeAndFlush(new Serializer().sendBet(k, this._login));
+                            this._executor.shutdown();
+                            return;
+                        }
+                        else {
+                            context.writeAndFlush(new Serializer().sendBet(0, this._login));
+                            this._executor.shutdown();
+                            return;
+                        }
+                    }
+                }
+            }
+        } finally{}
+    }
+
     public void playCard(ChannelHandlerContext context) throws Exception {
         for (int i = 0; i < this._cards.size(); i++) {
             System.out.print("La carte n°" + (i + 1) + " est un");
@@ -153,8 +182,6 @@ public class Client extends ChannelInboundHandlerAdapter {
 
             List<String> data = new ArrayList<String>(Arrays.asList(items.get(i).split(" ")));
 
-
-
             if (data.get(0).compareTo("OK") == 0) {
                 System.out.print("Ok\n");
             }
@@ -162,52 +189,56 @@ public class Client extends ChannelInboundHandlerAdapter {
                 for (int dataIndex = 2; dataIndex < data.size(); dataIndex = dataIndex + 3) {
                     _cards.add(new Card(Integer.parseInt(data.get(dataIndex)), Integer.parseInt(data.get(dataIndex + 1)), Integer.parseInt(data.get(dataIndex + 2))));
                 }
+
+                /* AFFICHAGE DES CARTES A DEPLACER */
+
+                if (_cards.size() == 8) {
+                    System.out.print("Vos cartes sont :\n");
+                    for (int c = 0; c < 8; c++) {
+                        System.out.print(_cards.get(i).getNumber() + " de ");
+                        if (_cards.get(c).getColor() == 0) {
+                            System.out.print("pique");
+                        } else if (_cards.get(c).getColor() == 1) {
+                            System.out.print("trefle");
+                        } else if (_cards.get(c).getColor() == 2) {
+                            System.out.print("carreau");
+                        } else if (_cards.get(c).getColor() == 3) {
+                            System.out.print("coeur");
+                        }
+                        System.out.print(", valeur de " + _cards.get(c).getValue() + "\n");
+                    }
+                    System.out.print("Tapez READY si vous êtes prêts à jouer\n");
+                    try {
+                        while (true) {
+
+                            startReadingThread();
+                            String str;
+
+                            if (!this._future.isDone()) {
+                                str = this._future.get();
+                                System.out.print("Readed : " + str + "\n");
+                                if (str.compareTo("READY") == 0) {
+                                    context.writeAndFlush(new Serializer().sendReady(this._login));
+                                    this._executor.shutdown();
+                                    break;
+                                }
+                                else {
+                                    System.out.print("Tapez READY si vous êtes prêts à jouer\n");
+                                    this._executor.shutdown();
+                                }
+                            }
+                        }
+                    } finally {}
+                }
+
+            }
+            if (data.get(0).compareTo("BET") == 0) {
+                bet(context);
             }
             if (data.get(0).compareTo("PLAY") == 0)
             {
                 playCard(context);
             }
-        }
-
-        /* AFFICHAGE DES CARTES A DEPLACER */
-
-        if (_cards.size() == 8) {
-            System.out.print("Vos cartes sont :\n");
-            for (int i = 0; i < 8; i++) {
-                System.out.print(_cards.get(i).getNumber() + " de ");
-                if (_cards.get(i).getColor() == 0) {
-                    System.out.print("pique");
-                } else if (_cards.get(i).getColor() == 1) {
-                    System.out.print("trefle");
-                } else if (_cards.get(i).getColor() == 2) {
-                    System.out.print("carreau");
-                } else if (_cards.get(i).getColor() == 3) {
-                    System.out.print("coeur");
-                }
-                System.out.print(", valeur de " + _cards.get(i).getValue() + "\n");
-            }
-            System.out.print("Tapez READY si vous êtes prêts à jouer\n");
-            try {
-                while (true) {
-
-                    startReadingThread();
-                    String str;
-
-                    if (!this._future.isDone()) {
-                        str = this._future.get();
-                        System.out.print("Readed : " + str + "\n");
-                        if (str.compareTo("READY") == 0) {
-                            context.writeAndFlush(new Serializer().sendReady(this._login));
-                            this._executor.shutdown();
-                            break;
-                        }
-                        else {
-                            System.out.print("Tapez READY si vous êtes prêts à jouer\n");
-                            this._executor.shutdown();
-                        }
-                    }
-                }
-            } finally {}
         }
     }
 }

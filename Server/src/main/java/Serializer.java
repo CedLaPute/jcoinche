@@ -65,4 +65,14 @@ public class Serializer { // ENCODAGE ET DECODAGE DES STRING
         b = Unpooled.wrappedBuffer(bites);
         return b;
     }
+
+    public ByteBuf sendPlay() {
+        ByteBuf b;
+        byte[] bites;
+        String s = "PLAY\r\n";
+
+         bites = s.getBytes();
+        b = Unpooled.wrappedBuffer(bites);
+        return b;
+    }
 }

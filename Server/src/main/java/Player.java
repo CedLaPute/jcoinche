@@ -13,7 +13,7 @@ public class Player {
     public String _login;
     public int _team;
     public int _points;
-    public int _bet;
+    public int _bet = -1;
     public ArrayList<Card> _cards = new ArrayList<Card>();
 
     public Player(ChannelHandlerContext channel, String login) {

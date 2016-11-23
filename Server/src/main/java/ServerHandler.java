@@ -19,6 +19,8 @@ public class ServerHandler {
 
     private int port;
     private boolean distributed = false;
+    private boolean bet = false;
+    private boolean playing = false;
     public ArrayList<Player> _players = new ArrayList<Player>();
     private Distributor deck;
 
@@ -31,18 +33,42 @@ public class ServerHandler {
     public int getPlayerIndexByName(String login) {
         int i = 0;
 
+        if (_players.size() == 0) {
+            return -1;
+        }
+
         while (i < _players.size()) {
             if (_players.get(i)._login.compareTo(login) == 0) {
                 return i;
             }
+            i++;
         }
         return -1;
     }
 
     public boolean allPlayersAreReady() {
+
+        if (_players.size() < 4) {
+            return false;
+        }
+
         for (int i = 0; i < _players.size(); i++) {
             if (_players.get(i)._ready == false)
                 return false;
+        }
+        return true;
+    }
+
+    public boolean haveAllPlayersBet() {
+
+        if (_players.size() < 4) {
+            return false;
+        }
+
+        for (int i = 0; i < _players.size(); i++) {
+            if (_players.get(i)._bet == -1) {
+                return false;
+            }
         }
         return true;
     }
@@ -59,19 +85,34 @@ public class ServerHandler {
                 System.out.print("Received ok\n");
             }
             if (data.get(0).compareTo("LOGIN") == 0) {
-                System.out.print("Login received : " + data.get(1) + "\n");
                 if (data.get(1).compareTo("\r\n") != 0) {
+                    System.out.print("Login received : " + data.get(1) + "\n");
                     _players.add(new Player(ctx, data.get(1)));
                     _players.get(_players.size() - 1)._channel.writeAndFlush(new Serializer().sendOk());
                 }
             }
             if (data.get(0).compareTo("READY") == 0) {
-                System.out.print("Ready received, login : " + data.get(1) + "\n");
                 if (data.get(1).compareTo("\r\n") != 0) {
+                    System.out.print("Ready received, login : " + data.get(1) + "\n");
                     if ((playerIndex = getPlayerIndexByName(data.get(1))) != -1) {
                         this._players.get(playerIndex)._ready = true;
+                        if (this._players.get(playerIndex)._ready == true) {
+                            System.out.print("Client is ready\n");
+                        }
                     }
                 }
+            }
+            if (data.get(0).compareTo("CLIENTBET") == 0) {
+                if (data.get(1).compareTo("\r\n") != 0 && data.get(2).compareTo("\r\n") != 0) {
+                    System.out.print("Bet received from -" + data.get(1) + "-, of amount " + Integer.parseInt(data.get(2)) + "\n");
+                    if ((playerIndex = getPlayerIndexByName(data.get(1))) != -1) {
+                        this._players.get(playerIndex)._bet = Integer.parseInt(data.get(2));
+                        if (this._players.get(playerIndex)._bet > -1) {
+                            System.out.print("Client have bet\n");
+                        }
+                    }
+                }
+
             }
         }
 
@@ -80,10 +121,17 @@ public class ServerHandler {
             distributed = true;
         }
 
-        if (allPlayersAreReady()) {
+        if (allPlayersAreReady() && bet == false) {
             for (playerIndex = 0; playerIndex < _players.size(); playerIndex++) {
                 this._players.get(playerIndex)._channel.writeAndFlush(new Serializer().sendBet());
             }
+            bet = true;
+        }
+
+        if (haveAllPlayersBet() && playing == false) {
+            this._players.get(0)._channel.writeAndFlush(new Serializer().sendPlay());
+            this._players.get(0)._play = true;
+            this.playing = true;
         }
     }
 

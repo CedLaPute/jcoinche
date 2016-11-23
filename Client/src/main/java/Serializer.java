@@ -48,6 +48,16 @@ public class Serializer { // ENCODAGE ET DECODAGE DES STRING
         return b;
     }
 
+    public ByteBuf sendBet(int bet, String login) {
+        ByteBuf b;
+        byte[] bites;
+        String s = "CLIENTBET " + login + " " + bet + "\r\n";
+
+        bites = s.getBytes();
+        b = Unpooled.wrappedBuffer(bites);
+        return b;
+    }
+
     public ByteBuf sendPlayerCard(String login, Card c) {
         ByteBuf b;
         byte[] bites;
