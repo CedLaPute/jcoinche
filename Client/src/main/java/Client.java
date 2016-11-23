@@ -71,6 +71,76 @@ public class Client extends ChannelInboundHandlerAdapter {
         context.close();
     }
 
+    public void playCard(ChannelHandlerContext context)
+    {
+        for (int i = 0; i < this._cards.size() ; i++)
+        {
+            System.out.print("La carte n°"+(i + 1)+" est un");
+            switch (this._cards.get(i).getNumber()) {
+                case 7:
+                    System.out.print(" 7 de");
+                    break;
+                case 8:
+                    System.out.print(" 8 de");
+                    break;
+                case 9:
+                    System.out.print(" 9 de");
+                    break;
+                case 10:
+                    System.out.print(" 10 de");
+                    break;
+                case 11:
+                    System.out.print(" Valet de");
+                    break;
+                case 12:
+                    System.out.print("e Dame de");
+                    break;
+                case 13:
+                    System.out.print(" Roi de");
+                    break;
+                case 14:
+                    System.out.print(" As de");
+                    break;
+                default:
+                    System.out.print(" --unknow-- de");
+            }
+            switch (this._cards.get(i).getColor()) {
+                case 0:
+                    System.out.print(" Pique");
+                    break;
+                case 1:
+                    System.out.print(" Trefle");
+                    break;
+                case 2:
+                    System.out.print(" Carreau");
+                    break;
+                case 3:
+                    System.out.print(" Coeur");
+                    break;
+                default:
+                    System.out.print(" --unknow--");
+            }
+        }
+        startReadingThread();
+        System.out.print("Quelle carte choisissez-vous ?\nIl vous suffit de rentrer un nombre entre 0 et "+this._cards.size()+".\n");
+        //usage de comment donné la carte
+        try {
+            String str;
+
+            while (true) {
+                if (!this._future.isDone()) {
+                    str = this._future.get();
+                    if (!StringUtils.isAlphanumeric(str)) {
+                        System.out.print("Vous avez jouer la " + str + "° carte.\n");
+                    }
+                    this._executor.shutdown();
+                    break;
+                }
+            }
+        } finally {}
+/*         */
+    }
+
     public void analyseCommand(ChannelHandlerContext context, String s) throws Exception {
         List<String> items = new ArrayList<String>(Arrays.asList(s.split("\r\n")));
 
@@ -83,6 +153,10 @@ public class Client extends ChannelInboundHandlerAdapter {
             }
             if (data.get(0).compareTo("CARD") == 0) {
                 _cards.add(new Card(Integer.parseInt(data.get(1)), Integer.parseInt(data.get(2)), Integer.parseInt(data.get(3))));
+            }
+            if (data.get(0).compareTo("PLAY") == 0)
+            {
+                playCard(context);
             }
         }
 
@@ -105,16 +179,20 @@ public class Client extends ChannelInboundHandlerAdapter {
             }
             System.out.print("Tapez READY si vous êtes prêts à jouer\n");
             try {
+                startReadingThread();
                 String str;
 
-                if (!this._future.isDone()) {
-                    str = this._future.get();
-                    System.out.print("Readed : " + str + "\n");
-                    if (str.compareTo("READY") == 0) {
-                        context.writeAndFlush(new Serializer().sendReady());
+                while (true) {
+
+                    if (!this._future.isDone()) {
+                        str = this._future.get();
+                        System.out.print("Readed : " + str + "\n");
+                        if (str.compareTo("READY") == 0) {
+                            context.writeAndFlush(new Serializer().sendReady());
+                            this._executor.shutdown();
+                            break;
+                        }
                     }
-                    this._executor.shutdown();
-                    startReadingThread();
                 }
             } finally {}
         }
