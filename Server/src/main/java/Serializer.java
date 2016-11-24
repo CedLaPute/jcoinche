@@ -19,6 +19,15 @@ public class Serializer { // ENCODAGE ET DECODAGE DES STRING
         return s;
     }
 
+    public ByteBuf getByteBufFromString(String s) {
+        ByteBuf b;
+        byte[] bites;
+
+        bites = s.getBytes();
+        b = Unpooled.wrappedBuffer(bites);
+        return b;
+    }
+
     public ByteBuf sendOk() {
         ByteBuf b;
         byte[] bites;
@@ -46,16 +55,6 @@ public class Serializer { // ENCODAGE ET DECODAGE DES STRING
         return b;
     }
 
-    public ByteBuf sendCard(Card _card) {
-        ByteBuf b;
-        byte[] bites;
-        String s = "CARD " + _card.getNumber() + " " + _card.getValue() + " " + _card.getColor() + "\r\n";
-
-        bites = s.getBytes();
-        b = Unpooled.wrappedBuffer(bites);
-        return b;
-    }
-
     public ByteBuf sendBet() {
         ByteBuf b;
         byte[] bites;
@@ -71,7 +70,7 @@ public class Serializer { // ENCODAGE ET DECODAGE DES STRING
         byte[] bites;
         String s = "PLAY\r\n";
 
-         bites = s.getBytes();
+        bites = s.getBytes();
         b = Unpooled.wrappedBuffer(bites);
         return b;
     }

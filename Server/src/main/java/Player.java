@@ -30,4 +30,15 @@ public class Player {
             this._cards.remove(index);
         }
     }
+
+    public int getCardByIndex(Card c) {
+        if (this._cards.size() > 0) {
+            for (int i = 0; i < this._cards.size(); i++) {
+                if (this._cards.get(i).getNumber() == c.getNumber() && this._cards.get(i).getValue() == c.getValue() && this._cards.get(i).getColor() == c.getColor()) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
 }
